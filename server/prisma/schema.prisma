@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ResearchSession {
+  id               String   @id @default(cuid())
+  companyName      String
+  ticker           String
+  region           String
+  decision         String?
+  compositeScore   Float?
+  riskLevel        String?
+  reasoningSummary String?  @db.Text
+  quantMetrics     Json?
+  qualMetrics      Json?
+  competitorData   Json?
+  executionTimeMs  Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  nodeLogs NodeLog[]
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model NodeLog {
+  id         String   @id @default(cuid())
+  sessionId  String
+  nodeName   String
+  status     String
+  payload    Json?
+  durationMs Int?
+  createdAt  DateTime @default(now())
+
+  session ResearchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}

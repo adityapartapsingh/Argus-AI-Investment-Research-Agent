@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   ARGUS DESIGN SYSTEM — Dark Terminal Aesthetic
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Surface Colors */
+  --color-surface-base: #080B12;
+  --color-surface-primary: #0D1117;
+  --color-surface-raised: #151B26;
+  --color-surface-overlay: #1C2333;
+
+  /* Border Colors */
+  --color-border-subtle: #1E2736;
+  --color-border-default: #2A3545;
+  --color-border-strong: #3D4F65;
+
+  /* Text Colors */
+  --color-text-primary: #F0F4F8;
+  --color-text-secondary: #8B9DC3;
+  --color-text-muted: #5A6B82;
+
+  /* Accent Colors */
+  --color-accent-blue: #3B82F6;
+  --color-accent-emerald: #10B981;
+  --color-accent-red: #EF4444;
+  --color-accent-amber: #F59E0B;
+  --color-accent-purple: #8B5CF6;
+  --color-accent-cyan: #06B6D4;
+
+  /* Decision Colors */
+  --color-invest: #10B981;
+  --color-invest-bg: rgba(16, 185, 129, 0.08);
+  --color-invest-border: rgba(16, 185, 129, 0.3);
+  --color-pass: #EF4444;
+  --color-pass-bg: rgba(239, 68, 68, 0.08);
+  --color-pass-border: rgba(239, 68, 68, 0.3);
+
+  /* Risk Level Colors */
+  --color-risk-low: #10B981;
+  --color-risk-medium: #F59E0B;
+  --color-risk-high: #F97316;
+  --color-risk-critical: #EF4444;
+
+  /* Spacing */
+  --spacing-panel: 20px;
+
+  /* Font Families */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+/* ── Google Fonts Import ── */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
+/* ── Global Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-base);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
