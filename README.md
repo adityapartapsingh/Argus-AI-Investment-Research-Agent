@@ -70,7 +70,7 @@ The system is built on a **React/Vite** frontend and a **Node.js/Express** backe
 The agent operates in a highly optimized 3-Node pipeline:
 1. **Intake Resolver Node:** Takes a raw company name, searches the Yahoo Finance directory, and resolves it to a highly accurate stock ticker (prioritizing NSE and BSE markets).
 2. **Data Engine Node:** Fetches rich quantitative data (PE ratio, ROE, Free Cash Flow, historical prices, etc.) directly from Yahoo Finance without requiring authenticated APIs.
-3. **Comprehensive Analysis Node:** Injects the gathered financial data into a massive single-shot prompt to Google's `gemini-2.5-flash` model. The LLM performs competitor benchmarking, risk assessment, and qualitative synthesis, returning a strict JSON structure containing the final investment decision.
+3. **Comprehensive Analysis Node:** Injects the gathered financial data into a massive single-shot prompt to Google's `gemini-3.5-flash` model. The LLM performs competitor benchmarking, risk assessment, and qualitative synthesis, returning a strict JSON structure containing the final investment decision.
 
 The backend streams the execution logs down to the frontend via Server-Sent Events (SSE) so the user can watch the agent "think" in real time.
 
@@ -94,6 +94,11 @@ The backend streams the execution logs down to the frontend via Server-Sent Even
 - **Synthesized Data:** PE Ratio ~55, high revenue growth, shrinking operating margins.
 - **Agent Output:** "Tesla operates at the cutting edge of EV and autonomous tech, commanding a premium valuation. While revenue growth remains robust, recent price cuts have materially compressed operating margins. Increased competition from BYD and legacy automakers presents a high-risk environment that isn't fully justified by the current PE multiple."
 - **Final Decision:** `PASS` (Confidence: 72%)
+
+
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
 
 ## What I Would Improve With More Time
 

@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import pkg from "@prisma/client";
+const { PrismaClient } = pkg;
 import { PrismaNeon } from "@prisma/adapter-neon";
 
 /**
