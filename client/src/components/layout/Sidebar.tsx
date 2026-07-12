@@ -62,12 +62,8 @@ export default function Sidebar({ sessions, loading, onSelectSession }: SidebarP
               )}
             </div>
             <div className="flex items-center gap-2 text-[10px] text-text-muted">
-              <span className="font-mono">{session.ticker || "—"}</span>
-              <span>•</span>
-              <span>{session.region}</span>
               {session.compositeScore != null && (
                 <>
-                  <span>•</span>
                   <span>{session.compositeScore}/100</span>
                 </>
               )}

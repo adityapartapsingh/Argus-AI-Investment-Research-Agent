@@ -2,20 +2,18 @@ import { useState } from "react";
 import { Search, Globe, Loader2 } from "lucide-react";
 
 interface InputPanelProps {
-  onSubmit: (companyName: string, ticker: string, region: string) => void;
+  onSubmit: (companyName: string) => void;
   isStreaming: boolean;
   onCancel: () => void;
 }
 
 export default function InputPanel({ onSubmit, isStreaming, onCancel }: InputPanelProps) {
   const [companyName, setCompanyName] = useState("");
-  const [ticker, setTicker] = useState("");
-  const [region, setRegion] = useState("US");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyName.trim()) return;
-    onSubmit(companyName.trim(), ticker.trim(), region);
+    onSubmit(companyName.trim());
   };
 
   return (
@@ -25,57 +23,24 @@ export default function InputPanel({ onSubmit, isStreaming, onCancel }: InputPan
         <h2 className="text-sm font-bold text-text-primary uppercase tracking-wide">Research Terminal</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="flex flex-col md:flex-row gap-3">
         {/* Company Name */}
-        <div className="md:col-span-1">
+        <div className="flex-1">
           <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1.5 block">
-            Company
+            Company, Stock, or ETF Name
           </label>
           <input
             type="text"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="e.g. Reliance Industries"
-            className="input-focus w-full bg-surface-base border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted font-medium"
+            placeholder="e.g. Apple, Reliance Industries, VOO"
+            className="input-focus w-full bg-surface-base border border-border-default rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted font-medium"
             disabled={isStreaming}
           />
-        </div>
-
-        {/* Ticker (Optional) */}
-        <div>
-          <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1.5 block">
-            Ticker <span className="text-text-muted opacity-60">(optional)</span>
-          </label>
-          <input
-            type="text"
-            value={ticker}
-            onChange={(e) => setTicker(e.target.value)}
-            placeholder="e.g. RELIANCE.NS"
-            className="input-focus w-full bg-surface-base border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted font-mono"
-            disabled={isStreaming}
-          />
-        </div>
-
-        {/* Region */}
-        <div>
-          <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1.5 block">
-            <Globe className="w-3 h-3 inline mr-1" />
-            Market Region
-          </label>
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="input-focus w-full bg-surface-base border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary font-semibold appearance-none cursor-pointer"
-            disabled={isStreaming}
-          >
-            <option value="IN">🇮🇳 Indian Markets (NSE/BSE)</option>
-            <option value="US">🇺🇸 US Markets (NASDAQ/NYSE)</option>
-            <option value="GLOBAL">🌍 Global Markets</option>
-          </select>
         </div>
 
         {/* Submit Button */}
-        <div className="flex items-end">
+        <div className="flex items-end min-w-[200px]">
           {isStreaming ? (
             <button
               type="button"

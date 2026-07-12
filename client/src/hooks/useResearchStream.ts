@@ -16,14 +16,17 @@ import type { ExecutionLog, ResearchResult } from "../types/research";
  */
 
 interface UseResearchStreamReturn {
-  startResearch: (companyName: string, ticker: string, region: string) => void;
+  startResearch: (companyName: string) => void;
   cancelResearch: () => void;
   isStreaming: boolean;
   logs: ExecutionLog[];
   result: ResearchResult | null;
   error: string | null;
   sessionId: string | null;
+  loadPastSession: (id: string) => Promise<void>;
 }
+
+import { getBrowserSessionId } from "../utils/session";
 
 export function useResearchStream(): UseResearchStreamReturn {
   const [isStreaming, setIsStreaming] = useState(false);
@@ -39,7 +42,7 @@ export function useResearchStream(): UseResearchStreamReturn {
   }, []);
 
   const startResearch = useCallback(
-    async (companyName: string, ticker: string, region: string) => {
+    async (companyName: string) => {
       // Reset state
       setIsStreaming(true);
       setLogs([]);
@@ -52,10 +55,11 @@ export function useResearchStream(): UseResearchStreamReturn {
       abortRef.current = controller;
 
       try {
+        const browserSessionId = getBrowserSessionId();
         const response = await fetch("/api/research", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ companyName, ticker, region }),
+          body: JSON.stringify({ companyName, browserSessionId }),
           signal: controller.signal,
         });
 
@@ -136,6 +140,38 @@ export function useResearchStream(): UseResearchStreamReturn {
     []
   );
 
+  const loadPastSession = useCallback(async (id: string) => {
+    setIsStreaming(true);
+    setLogs([]);
+    setResult(null);
+    setError(null);
+    setSessionId(id);
+    
+    try {
+      const response = await fetch(`/api/history/${id}`);
+      if (!response.ok) throw new Error("Failed to fetch session details");
+      const session = await response.json();
+      
+      setLogs(session.nodeLogs || []);
+      setResult({
+        decision: session.decision,
+        compositeScore: session.compositeScore,
+        riskLevel: session.riskLevel,
+        reasoningSummary: session.reasoningSummary,
+        quantitativeMetrics: session.quantMetrics,
+        qualitativeMetrics: session.qualMetrics,
+        competitors: session.competitorData,
+        ticker: session.ticker,
+        currency: session.quantMetrics?.currency || "USD",
+        region: session.region,
+      } as unknown as ResearchResult);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsStreaming(false);
+    }
+  }, []);
+
   return {
     startResearch,
     cancelResearch,
@@ -144,5 +180,6 @@ export function useResearchStream(): UseResearchStreamReturn {
     result,
     error,
     sessionId,
+    loadPastSession,
   };
 }

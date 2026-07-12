@@ -60,8 +60,6 @@ export interface CompetitorData {
 export const AgentState = Annotation.Root({
   // ── Input Fields ──
   companyName: Annotation<string>(),
-  ticker: Annotation<string>(),
-  region: Annotation<"IN" | "US" | "GLOBAL">(),
 
   // ── Resolved by intakeResolver ──
   resolvedTicker: Annotation<string>(),
@@ -100,7 +98,10 @@ export const AgentState = Annotation.Root({
   confidenceLevel: Annotation<number>(), // 0-100
 
   // ── Execution Tracking ──
-  currentNode: Annotation<string>(),
+  currentNode: Annotation<string>({
+    reducer: (existing, incoming) => incoming ? incoming : existing,
+    default: () => "",
+  }),
   executionLogs: Annotation<ExecutionLog[], ExecutionLog[]>({
     // Custom reducer: APPEND new logs to existing array
     // This is critical — parallel nodes both write logs, we can't overwrite

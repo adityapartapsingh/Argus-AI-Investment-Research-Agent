@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import type { HistorySession } from "../types/research";
 
+import { getBrowserSessionId } from "../utils/session";
+
 /**
  * Custom hook for fetching search history from the API.
  */
@@ -11,7 +13,8 @@ export function useSearchHistory() {
   const fetchHistory = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/history?limit=30");
+      const sessionId = getBrowserSessionId();
+      const res = await fetch(`/api/history?limit=30&browserSessionId=${sessionId}`);
       if (!res.ok) throw new Error("Failed to fetch history");
       const data = await res.json();
       setSessions(data.sessions || []);

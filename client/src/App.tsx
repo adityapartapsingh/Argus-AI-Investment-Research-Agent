@@ -8,10 +8,13 @@ import QuantMetrics from "./components/research/QuantMetrics";
 import RevenueChart from "./components/research/RevenueChart";
 import CompetitorTable from "./components/research/CompetitorTable";
 import RiskSummary from "./components/research/RiskSummary";
+import AnalyzingAnimation from "./components/research/AnalyzingAnimation";
 import { useResearchStream } from "./hooks/useResearchStream";
 import { useSearchHistory } from "./hooks/useSearchHistory";
 import type { HistorySession } from "./types/research";
 import { AlertCircle } from "lucide-react";
+import LandingPage from "./components/landing/LandingPage";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 /**
  * Root application layout:
@@ -27,20 +30,18 @@ import { AlertCircle } from "lucide-react";
  *  │          │  └────────────────┴─────────────┘│
  *  └──────────┴──────────────────────────────────┘
  */
-export default function App() {
-  const { startResearch, cancelResearch, isStreaming, logs, result, error } = useResearchStream();
+function AppDashboard() {
+  const { startResearch, cancelResearch, isStreaming, logs, result, error, loadPastSession } = useResearchStream();
   const { sessions, loading: historyLoading, refetch: refetchHistory } = useSearchHistory();
 
-  const handleSubmit = (companyName: string, ticker: string, region: string) => {
-    startResearch(companyName, ticker, region);
+  const handleSubmit = (companyName: string) => {
+    startResearch(companyName, "", "");
     // Refetch history after a delay to pick up the new session
     setTimeout(refetchHistory, 2000);
   };
 
   const handleSelectSession = async (session: HistorySession) => {
-    // TODO: Load full session details from /api/history/:id
-    // For now, just trigger a new research for the same company
-    startResearch(session.companyName, session.ticker, session.region);
+    await loadPastSession(session.id);
   };
 
   return (
@@ -78,11 +79,24 @@ export default function App() {
           {/* Live Node Stream */}
           <NodeStream logs={logs} isStreaming={isStreaming} />
 
+          {/* Epic Analyzing Animation */}
+          {isStreaming && !result && !error && (
+            <AnalyzingAnimation />
+          )}
+
           {/* Results Section */}
           {result && (
             <div className="space-y-5">
               {/* Scorecard */}
               <Scorecard result={result} />
+
+              {/* Company Description */}
+              {result.companyDescription && (
+                <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5">
+                  <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-2">Company Overview</h3>
+                  <p className="text-sm text-text-secondary leading-relaxed">{result.companyDescription}</p>
+                </div>
+              )}
 
               {/* Two-column layout for metrics */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -134,10 +148,10 @@ export default function App() {
                 across financial metrics, market sentiment, and competitive positioning.
               </p>
               <div className="flex gap-3 mt-6">
-                <QuickButton label="Reliance" ticker="RELIANCE.NS" region="IN" onSubmit={handleSubmit} />
-                <QuickButton label="Apple" ticker="AAPL" region="US" onSubmit={handleSubmit} />
-                <QuickButton label="HDFC Bank" ticker="HDFCBANK.NS" region="IN" onSubmit={handleSubmit} />
-                <QuickButton label="Tesla" ticker="TSLA" region="US" onSubmit={handleSubmit} />
+                <QuickButton label="Reliance" onSubmit={handleSubmit} />
+                <QuickButton label="Apple" onSubmit={handleSubmit} />
+                <QuickButton label="HDFC Bank" onSubmit={handleSubmit} />
+                <QuickButton label="Tesla" onSubmit={handleSubmit} />
               </div>
             </div>
           )}
@@ -148,17 +162,29 @@ export default function App() {
 }
 
 function QuickButton({
-  label, ticker, region, onSubmit
+  label, onSubmit
 }: {
-  label: string; ticker: string; region: string;
-  onSubmit: (name: string, ticker: string, region: string) => void;
+  label: string;
+  onSubmit: (name: string) => void;
 }) {
   return (
     <button
-      onClick={() => onSubmit(label, ticker, region)}
+      onClick={() => onSubmit(label)}
       className="text-xs font-semibold text-text-secondary bg-surface-raised border border-border-subtle rounded-xl px-4 py-2 hover:border-accent-blue hover:text-accent-blue transition-colors cursor-pointer"
     >
       {label}
     </button>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/dashboard" element={<AppDashboard />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }

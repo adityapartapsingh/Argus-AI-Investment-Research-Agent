@@ -1,17 +1,13 @@
 import type { AgentStateType, ExecutionLog } from "../state.js";
-import { invokeWithFallback } from "../../llm/provider.js";
-import { HumanMessage } from "@langchain/core/messages";
+import YahooFinance from "yahoo-finance2";
+const yf = new (YahooFinance as any)({ suppressNotices: ['yahooSurvey'] });
 
 /**
  * Node 1: Intake Resolver
  *
  * Validates user input, resolves company name to ticker symbol,
  * and normalizes the ticker format for the target exchange.
- *
- * Why this node exists:
- *  - Users might type "Reliance" without knowing the ticker is "RELIANCE.NS"
- *  - We need to handle edge cases: "Apple" vs "Apple Hospitality REIT"
- *  - Sets up currency/exchange context for all downstream nodes
+ * Now using Yahoo Finance search instead of LLM for 0 API cost.
  */
 export async function intakeResolver(
   state: AgentStateType
@@ -22,44 +18,34 @@ export async function intakeResolver(
     {
       node: "intakeResolver",
       status: "running",
-      message: `Resolving ticker for "${state.companyName}" in ${state.region} markets...`,
+      message: `Resolving ticker for "${state.companyName}" using Yahoo Finance Search...`,
       timestamp: new Date().toISOString(),
     },
   ];
 
   try {
-    let resolvedTicker = state.ticker;
+    let resolvedTicker = "";
     let exchange = "Unknown";
     let currency = "USD";
+    let sector = "";
+    let industry = "";
+    let companyName = state.companyName;
 
-    // If user provided a ticker, normalize it
-    if (state.ticker && state.ticker.trim().length > 0) {
-      resolvedTicker = state.ticker.trim().toUpperCase();
+    // Use Yahoo Search to resolve company name to ticker
+    const searchResults = await yf.search(state.companyName);
+    const equityQuotes = searchResults.quotes.filter((q: any) => q.quoteType === 'EQUITY');
+    
+    // Prioritize Indian exchanges (NSE, BSE)
+    const indianMatch = equityQuotes.find((q: any) => q.symbol && (q.symbol.endsWith('.NS') || q.symbol.endsWith('.BO')));
+    const bestMatch = indianMatch || equityQuotes[0] || searchResults.quotes[0];
+
+    if (bestMatch && bestMatch.symbol) {
+      resolvedTicker = bestMatch.symbol;
+      companyName = bestMatch.longname || bestMatch.shortname || state.companyName;
+      sector = bestMatch.sector || "";
+      industry = bestMatch.industry || "";
     } else {
-      // Use LLM to resolve company name to ticker
-      const { content } = await invokeWithFallback(
-        [
-          new HumanMessage(
-            `You are a financial data resolver. Given the company name "${state.companyName}" and target market region "${state.region}", return ONLY the stock ticker symbol.
-
-Rules:
-- For Indian (IN) markets: append .NS for NSE or .BO for BSE (prefer NSE)
-- For US markets: return the standard NASDAQ/NYSE ticker
-- For GLOBAL: return the most liquid exchange listing
-- Return ONLY the ticker, nothing else. No explanation.
-
-Example: "Reliance" + "IN" → "RELIANCE.NS"
-Example: "Apple" + "US" → "AAPL"
-Example: "Samsung" + "GLOBAL" → "005930.KS"
-
-Company: ${state.companyName}
-Region: ${state.region}
-Ticker:`
-          ),
-        ],
-        "intakeResolver"
-      );
-      resolvedTicker = content.trim().replace(/['"]/g, "");
+      throw new Error(`Could not find a stock symbol for "${state.companyName}"`);
     }
 
     // Determine exchange and currency from ticker suffix
@@ -80,28 +66,26 @@ Ticker:`
       currency = "USD";
     }
 
-    // For Indian region without suffix, auto-append .NS
-    if (state.region === "IN" && !resolvedTicker.includes(".")) {
-      resolvedTicker = `${resolvedTicker}.NS`;
-      exchange = "NSE";
-      currency = "INR";
-    }
+
 
     const durationMs = Date.now() - startTime;
 
     logs.push({
       node: "intakeResolver",
       status: "completed",
-      message: `Resolved: ${resolvedTicker} on ${exchange} (${currency})`,
+      message: `Resolved: ${companyName} (${resolvedTicker}) on ${exchange} (${currency})`,
       timestamp: new Date().toISOString(),
       durationMs,
-      data: { resolvedTicker, exchange, currency },
+      data: { resolvedTicker, exchange, currency, sector, industry },
     });
 
     return {
+      companyName,
       resolvedTicker,
       exchange,
       currency,
+      sector,
+      industry,
       currentNode: "intakeResolver",
       executionLogs: logs,
     };
@@ -116,9 +100,9 @@ Ticker:`
 
     // Use the raw ticker input as fallback
     return {
-      resolvedTicker: state.ticker || state.companyName.toUpperCase(),
+      resolvedTicker: state.companyName.toUpperCase(),
       exchange: "Unknown",
-      currency: state.region === "IN" ? "INR" : "USD",
+      currency: "USD",
       currentNode: "intakeResolver",
       executionLogs: logs,
     };

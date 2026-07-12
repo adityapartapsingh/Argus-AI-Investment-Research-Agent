@@ -1,45 +1,56 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { ChatOpenAI } from "@langchain/openai";
 import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
 
 /**
- * Dual-LLM provider with automatic failover.
- * Primary: Google Gemini 2.0 Flash (free tier, fast inference)
- * Fallback: OpenAI GPT-4o-mini (paid, reliable backup)
- *
- * Why this pattern:
- *  - Gemini free tier has occasional rate limits under burst traffic
- *  - OpenAI is more expensive but rarely fails
- *  - Production systems should never have a single point of LLM failure
+ * Dual-LLM provider with automatic failover (Gemini -> Gemini).
+ * Primary: Google Gemini 3.5 Flash using primary API key
+ * Fallback: Google Gemini 3.5 Flash using secondary API key
  */
+
 
 let primaryModel: BaseChatModel | null = null;
 let fallbackModel: BaseChatModel | null = null;
+let tertiaryModel: BaseChatModel | null = null;
+// Force nodemon restart to reload .env
 
 function getPrimary(): BaseChatModel {
   if (!primaryModel) {
     primaryModel = new ChatGoogleGenerativeAI({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.3, // Low temp for analytical consistency
-      maxOutputTokens: 4096,
+      maxOutputTokens: 8192, // Increased for massive single-shot output
     });
   }
   return primaryModel;
 }
 
 function getFallback(): BaseChatModel | null {
-  if (!process.env.OPENAI_API_KEY) return null;
+  if (!process.env.GEMINI_API_KEY_2) return null;
   if (!fallbackModel) {
-    fallbackModel = new ChatOpenAI({
-      model: "gpt-4o-mini",
-      apiKey: process.env.OPENAI_API_KEY,
+    fallbackModel = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-flash",
+      apiKey: process.env.GEMINI_API_KEY_2,
       temperature: 0.3,
-      maxTokens: 4096,
+      maxOutputTokens: 8192,
     });
   }
   return fallbackModel;
 }
+
+function getTertiary(): BaseChatModel | null {
+  if (!process.env.GEMINI_API_KEY_3) return null;
+  if (!tertiaryModel) {
+    tertiaryModel = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-flash",
+      apiKey: process.env.GEMINI_API_KEY_3,
+      temperature: 0.3,
+      maxOutputTokens: 8192,
+    });
+  }
+  return tertiaryModel;
+}
+
 
 /**
  * Returns the primary LLM. Use `invokeWithFallback` for production calls
@@ -66,12 +77,12 @@ export async function invokeWithFallback(
     console.log(`[LLM] ${tag} served by: Gemini`);
     return { content: text, provider: "gemini" };
   } catch (err) {
-    console.warn(`[LLM] Gemini failed for ${tag}:`, (err as Error).message);
+    console.warn(`[LLM] Primary Gemini failed for ${tag}:`, (err as Error).message);
 
     const fallback = getFallback();
     if (!fallback) {
       throw new Error(
-        `Primary LLM (Gemini) failed and no fallback configured. Set OPENAI_API_KEY for redundancy. Original error: ${(err as Error).message}`
+        `Primary LLM (Gemini) failed and no fallback configured. Set GEMINI_API_KEY_2 for redundancy. Original error: ${(err as Error).message}`
       );
     }
 
@@ -80,12 +91,30 @@ export async function invokeWithFallback(
       const text = typeof response.content === "string"
         ? response.content
         : JSON.stringify(response.content);
-      console.log(`[LLM] ${tag} served by: OpenAI (fallback)`);
-      return { content: text, provider: "openai-fallback" };
+      console.log(`[LLM] ${tag} served by: Gemini (fallback key)`);
+      return { content: text, provider: "gemini-fallback" };
     } catch (fallbackErr) {
-      throw new Error(
-        `Both LLM providers failed for ${tag}. Gemini: ${(err as Error).message}. OpenAI: ${(fallbackErr as Error).message}`
-      );
+      console.warn(`[LLM] Secondary Gemini failed for ${tag}:`, (fallbackErr as Error).message);
+
+      const tertiary = getTertiary();
+      if (!tertiary) {
+        throw new Error(
+          `Both LLM providers failed for ${tag}. Primary: ${(err as Error).message}. Secondary: ${(fallbackErr as Error).message}`
+        );
+      }
+
+      try {
+        const response = await tertiary.invoke(messages);
+        const text = typeof response.content === "string"
+          ? response.content
+          : JSON.stringify(response.content);
+        console.log(`[LLM] ${tag} served by: Gemini (tertiary key)`);
+        return { content: text, provider: "gemini-tertiary" };
+      } catch (tertiaryErr) {
+        throw new Error(
+          `All three LLM providers failed for ${tag}. Primary: ${(err as Error).message}. Secondary: ${(fallbackErr as Error).message}. Tertiary: ${(tertiaryErr as Error).message}`
+        );
+      }
     }
   }
 }

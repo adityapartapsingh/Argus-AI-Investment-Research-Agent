@@ -70,8 +70,6 @@ export interface ResearchResult {
 export interface HistorySession {
   id: string;
   companyName: string;
-  ticker: string;
-  region: string;
   decision: string | null;
   compositeScore: number | null;
   riskLevel: string | null;
@@ -93,29 +91,17 @@ export type NodeName =
   | "system"
   | "intakeResolver"
   | "dataEngine"
-  | "newsSentiment"
-  | "quantAnalysis"
-  | "competitorBenchmark"
-  | "riskScoring"
-  | "investmentBoard";
+  | "comprehensiveAnalysis";
 
 export const NODE_LABELS: Record<NodeName, string> = {
   system: "System",
-  intakeResolver: "Intake Resolver",
+  intakeResolver: "Ticker Resolution",
   dataEngine: "Data Engine",
-  newsSentiment: "News Sentiment",
-  quantAnalysis: "Quant Analysis",
-  competitorBenchmark: "Competitor Benchmark",
-  riskScoring: "Risk Scoring",
-  investmentBoard: "Investment Board",
+  comprehensiveAnalysis: "AI Comprehensive Analysis",
 };
 
 export const NODE_ORDER: NodeName[] = [
   "intakeResolver",
   "dataEngine",
-  "newsSentiment",
-  "quantAnalysis",
-  "competitorBenchmark",
-  "riskScoring",
-  "investmentBoard",
+  "comprehensiveAnalysis",
 ];

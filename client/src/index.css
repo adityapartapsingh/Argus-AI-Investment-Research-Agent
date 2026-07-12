@@ -49,10 +49,24 @@
   /* Font Families */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-newsreader: "Newsreader", serif;
+
+  /* ═══════════════════════════════════════════════════════════════
+     LANDING PAGE DESIGN SYSTEM (Light Mode / Premium)
+     ═══════════════════════════════════════════════════════════════ */
+  --color-landing-bg: #f7f9fb;
+  --color-landing-surface: #ffffff;
+  --color-landing-surface-dim: #f2f4f6;
+  --color-landing-outline: #e2e8f0;
+  --color-landing-primary: #0f172a;       /* Navy */
+  --color-landing-secondary: #d4af37;     /* Gold */
+  --color-landing-tertiary: #475569;      /* Slate */
+  --color-landing-text-primary: #191c1e;
+  --color-landing-text-secondary: #45464d;
 }
 
 /* ── Google Fonts Import ── */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:wght@400;500;600;700&display=swap");
 
 /* ── Global Reset ── */
 *, *::before, *::after {

@@ -16,16 +16,17 @@ router.get("/", async (req: Request, res: Response) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const skip = (page - 1) * limit;
 
+    const browserSessionId = req.query.browserSessionId as string | undefined;
+
     const [sessions, total] = await Promise.all([
       prisma.researchSession.findMany({
+        where: browserSessionId ? { browserSessionId } : undefined,
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
         select: {
           id: true,
           companyName: true,
-          ticker: true,
-          region: true,
           decision: true,
           compositeScore: true,
           riskLevel: true,
@@ -33,7 +34,9 @@ router.get("/", async (req: Request, res: Response) => {
           createdAt: true,
         },
       }),
-      prisma.researchSession.count(),
+      prisma.researchSession.count({
+        where: browserSessionId ? { browserSessionId } : undefined,
+      }),
     ]);
 
     res.json({

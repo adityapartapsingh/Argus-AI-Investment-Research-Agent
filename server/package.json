@@ -4,7 +4,7 @@
   "description": "Argus AI Investment Research Agent - Backend",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "npx tsx --watch src/index.ts",
+    "dev": "nodemon --exec npx tsx src/index.ts",
     "start": "npx tsx src/index.ts",
     "db:push": "npx prisma db push",
     "db:generate": "npx prisma generate",
@@ -31,13 +31,14 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^7.0.0",
-    "yahoo-finance2": "^2.14.0",
+    "yahoo-finance2": "^4.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
+    "nodemon": "^3.1.14",
     "prisma": "^7.8.0",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2"

@@ -23,16 +23,11 @@ const router = Router();
  *  - We don't need bidirectional communication here
  */
 router.post("/", async (req: Request, res: Response) => {
-  const { companyName, ticker, region } = req.body;
+  const { companyName, ticker, browserSessionId } = req.body;
 
   // Input validation
   if (!companyName || typeof companyName !== "string" || companyName.trim().length === 0) {
     res.status(400).json({ error: "companyName is required" });
-    return;
-  }
-
-  if (!region || !["IN", "US", "GLOBAL"].includes(region)) {
-    res.status(400).json({ error: "region must be one of: IN, US, GLOBAL" });
     return;
   }
 
@@ -54,8 +49,7 @@ router.post("/", async (req: Request, res: Response) => {
     const session = await prisma.researchSession.create({
       data: {
         companyName: companyName.trim(),
-        ticker: (ticker || "").trim(),
-        region,
+        browserSessionId: browserSessionId || null,
       },
     });
     sessionId = session.id;
@@ -71,8 +65,6 @@ router.post("/", async (req: Request, res: Response) => {
     const workflow = compileWorkflow();
     const stream = await workflow.stream({
       companyName: companyName.trim(),
-      ticker: (ticker || "").trim(),
-      region: region as "IN" | "US" | "GLOBAL",
       currentNode: "START",
       executionLogs: [],
     });

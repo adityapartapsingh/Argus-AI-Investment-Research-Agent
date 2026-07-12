@@ -1,4 +1,5 @@
-import yahooFinance from "yahoo-finance2";
+import YahooFinance from "yahoo-finance2";
+const yahooFinance = new (YahooFinance as any)({ suppressNotices: ['yahooSurvey'] });
 
 /**
  * Yahoo Finance data wrapper.
@@ -53,20 +54,21 @@ export interface YahooHistoricalPrice {
 export async function getQuote(ticker: string): Promise<YahooQuoteData | null> {
   try {
     const result = await yahooFinance.quoteSummary(ticker, {
-      modules: ["price", "summaryProfile", "defaultKeyStatistics", "financialData"],
+      modules: ["price", "summaryProfile", "defaultKeyStatistics", "financialData", "summaryDetail"],
     });
 
     const price = result.price;
     const profile = result.summaryProfile;
     const keyStats = result.defaultKeyStatistics;
     const finData = result.financialData;
+    const summary = result.summaryDetail;
 
     return {
       price: price?.regularMarketPrice ?? null,
       marketCap: price?.marketCap ?? null,
-      peRatio: keyStats?.trailingPE ?? null,
-      pbRatio: keyStats?.priceToBook ?? null,
-      dividendYield: keyStats?.dividendYield ?? null,
+      peRatio: keyStats?.trailingPE ?? summary?.trailingPE ?? null,
+      pbRatio: keyStats?.priceToBook ?? summary?.priceToBook ?? null,
+      dividendYield: keyStats?.dividendYield ?? summary?.dividendYield ?? null,
       fiftyTwoWeekHigh: keyStats?.fiftyTwoWeekHigh ?? null,
       fiftyTwoWeekLow: keyStats?.fiftyTwoWeekLow ?? null,
       avgVolume: price?.averageDailyVolume3Month ?? null,
@@ -88,37 +90,27 @@ export async function getQuote(ticker: string): Promise<YahooQuoteData | null> {
 export async function getFinancials(ticker: string): Promise<YahooFinancialData | null> {
   try {
     const result = await yahooFinance.quoteSummary(ticker, {
-      modules: ["incomeStatementHistory", "balanceSheetHistory", "cashflowStatementHistory", "financialData", "defaultKeyStatistics"],
+      modules: ["financialData", "defaultKeyStatistics"],
     });
 
-    const incomeStatements = result.incomeStatementHistory?.incomeStatementHistory ?? [];
     const finData = result.financialData;
     const keyStats = result.defaultKeyStatistics;
 
-    // Build revenue history from income statements (most recent 4 years)
-    const revenueHistory = incomeStatements
-      .map((stmt: any) => ({
-        year: new Date(stmt.endDate).getFullYear(),
-        revenue: stmt.totalRevenue ?? 0,
-        netIncome: stmt.netIncome ?? 0,
-      }))
-      .reverse(); // Oldest first for chart rendering
-
-    // Calculate YoY revenue growth from the two most recent years
+    // The historical income statements module is deprecated by Yahoo Finance.
+    // We return an empty revenueHistory, but we use the TTM revenue growth
+    // provided directly by the financialData module.
+    const revenueHistory: any[] = [];
     let revenueGrowthYoY: number | null = null;
-    if (revenueHistory.length >= 2) {
-      const latest = revenueHistory[revenueHistory.length - 1]!;
-      const previous = revenueHistory[revenueHistory.length - 2]!;
-      if (previous.revenue > 0) {
-        revenueGrowthYoY = ((latest.revenue - previous.revenue) / previous.revenue) * 100;
-      }
+    
+    if (finData?.revenueGrowth) {
+      revenueGrowthYoY = finData.revenueGrowth * 100;
     }
 
     return {
       revenueHistory,
       debtToEquity: finData?.debtToEquity ?? null,
       returnOnEquity: finData?.returnOnEquity ?? null,
-      freeCashFlow: finData?.freeCashFlow ?? null,
+      freeCashFlow: finData?.freeCashflow ?? finData?.operatingCashflow ?? null,
       operatingMargin: finData?.operatingMargins ?? null,
       epsTrailingTwelveMonths: keyStats?.trailingEps ?? null,
       revenueGrowthYoY,

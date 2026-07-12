@@ -8,7 +8,7 @@ interface NodeStreamProps {
 }
 
 /**
- * Live pipeline visualizer showing 7-node state transitions.
+ * Live pipeline visualizer showing 3-node state transitions.
  * Each node shows: icon (pending/running/complete/failed) + name + message
  */
 export default function NodeStream({ logs, isStreaming }: NodeStreamProps) {
