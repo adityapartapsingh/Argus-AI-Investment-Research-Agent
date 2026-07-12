@@ -40,7 +40,6 @@ export default function NodeStream({ logs, isStreaming }: NodeStreamProps) {
           const isActive = status?.status === "running";
           const isComplete = status?.status === "completed";
           const isFailed = status?.status === "failed";
-          const isPending = !status;
 
           return (
             <div key={nodeName} className="flex items-start gap-3">

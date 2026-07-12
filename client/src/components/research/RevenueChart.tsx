@@ -1,6 +1,6 @@
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  LineChart, Line, Area, AreaChart,
+  Area, AreaChart,
 } from "recharts";
 import type { QuantitativeMetrics } from "../../types/research";
 
@@ -60,7 +60,7 @@ export default function RevenueChart({ metrics, currency }: RevenueChartProps) {
                     fontSize: "12px",
                     fontFamily: "Inter",
                   }}
-                  formatter={(value: number) => [formatValue(value), ""]}
+                  formatter={(value: any) => [formatValue(Number(value)), ""]}
                 />
                 <Legend
                   wrapperStyle={{ fontSize: "11px", fontFamily: "Inter" }}
@@ -124,7 +124,7 @@ export default function RevenueChart({ metrics, currency }: RevenueChartProps) {
                     borderRadius: "12px",
                     fontSize: "12px",
                   }}
-                  formatter={(value: number) => [`${symbol}${value.toFixed(2)}`, "Price"]}
+                  formatter={(value: any) => [`${symbol}${Number(value).toFixed(2)}`, "Price"]}
                 />
                 <Area
                   type="monotone"

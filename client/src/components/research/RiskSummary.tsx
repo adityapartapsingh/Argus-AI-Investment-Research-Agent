@@ -1,4 +1,4 @@
-import { AlertTriangle, TrendingUp, Lightbulb } from "lucide-react";
+import { AlertTriangle, Lightbulb } from "lucide-react";
 import type { QualitativeMetrics } from "../../types/research";
 
 interface RiskSummaryProps {

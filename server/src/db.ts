@@ -1,7 +1,5 @@
 import "dotenv/config";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "./generated/client/index.js";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
 /**

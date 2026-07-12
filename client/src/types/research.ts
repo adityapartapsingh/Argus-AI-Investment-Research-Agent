@@ -65,6 +65,7 @@ export interface ResearchResult {
   currency: string;
   sector: string;
   industry: string;
+  companyDescription?: string;
 }
 
 export interface HistorySession {
