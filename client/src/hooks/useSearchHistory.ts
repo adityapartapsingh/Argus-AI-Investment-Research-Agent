@@ -14,7 +14,8 @@ export function useSearchHistory() {
     setLoading(true);
     try {
       const sessionId = getBrowserSessionId();
-      const res = await fetch(`/api/history?limit=30&browserSessionId=${sessionId}`);
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${apiUrl}/api/history?limit=30&browserSessionId=${sessionId}`);
       if (!res.ok) throw new Error("Failed to fetch history");
       const data = await res.json();
       setSessions(data.sessions || []);

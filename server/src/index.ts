@@ -1,5 +1,7 @@
 import "dotenv/config"; // Must be at the very top to load env vars before imports
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import researchRouter from "./routes/research.js";
@@ -11,12 +13,17 @@ const PORT = parseInt(process.env.PORT || "4000", 10);
 
 // ── Middleware ──
 
-// CORS: Allow the React dev server
+// CORS: Allow the React dev server and production frontend
+const allowedOrigins = [
+  "http://localhost:5173",  // Vite dev server
+  "http://localhost:3000",  // Alternative dev port
+];
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",  // Vite dev server
-    "http://localhost:3000",  // Alternative dev port
-  ],
+  origin: allowedOrigins,
   credentials: true,
 }));
 
@@ -52,6 +59,22 @@ app.use("/api/history", historyRouter);
 
 // ── Error Handling ──
 app.use(errorHandler);
+
+// ── Static Frontend Serving (Production) ──
+if (process.env.NODE_ENV === "production") {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  // In production, the compiled index.js is at server/dist/index.js (if built) 
+  // or we run via tsx directly in server/src/index.ts. 
+  // We resolve the client dist relative to the current working directory (server)
+  const clientDist = path.join(process.cwd(), "../client/dist");
+  
+  app.use(express.static(clientDist));
+  
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientDist, "index.html"));
+  });
+}
 
 // ── Start Server ──
 app.listen(PORT, () => {

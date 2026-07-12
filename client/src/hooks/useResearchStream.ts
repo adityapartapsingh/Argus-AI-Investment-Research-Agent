@@ -56,7 +56,8 @@ export function useResearchStream(): UseResearchStreamReturn {
 
       try {
         const browserSessionId = getBrowserSessionId();
-        const response = await fetch("/api/research", {
+        const apiUrl = import.meta.env.VITE_API_URL || "";
+        const response = await fetch(`${apiUrl}/api/research`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ companyName, browserSessionId }),
@@ -148,7 +149,8 @@ export function useResearchStream(): UseResearchStreamReturn {
     setSessionId(id);
     
     try {
-      const response = await fetch(`/api/history/${id}`);
+      const apiUrl = import.meta.env.VITE_API_URL || "";
+      const response = await fetch(`${apiUrl}/api/history/${id}`);
       if (!response.ok) throw new Error("Failed to fetch session details");
       const session = await response.json();
       

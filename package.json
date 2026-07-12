@@ -1,0 +1,17 @@
+{
+  "name": "argus-unified",
+  "version": "1.0.0",
+  "description": "Unified deploy package for Argus",
+  "scripts": {
+    "install": "npm run install:client && npm run install:server",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npx prisma generate",
+    "start": "cd server && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
