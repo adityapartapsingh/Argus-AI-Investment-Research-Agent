@@ -16,7 +16,7 @@ let tertiaryModel: BaseChatModel | null = null;
 function getPrimary(): BaseChatModel {
   if (!primaryModel) {
     primaryModel = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.3, // Low temp for analytical consistency
       maxOutputTokens: 8192, // Increased for massive single-shot output
@@ -29,7 +29,7 @@ function getFallback(): BaseChatModel | null {
   if (!process.env.GEMINI_API_KEY_2) return null;
   if (!fallbackModel) {
     fallbackModel = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       apiKey: process.env.GEMINI_API_KEY_2,
       temperature: 0.3,
       maxOutputTokens: 8192,
@@ -42,7 +42,7 @@ function getTertiary(): BaseChatModel | null {
   if (!process.env.GEMINI_API_KEY_3) return null;
   if (!tertiaryModel) {
     tertiaryModel = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       apiKey: process.env.GEMINI_API_KEY_3,
       temperature: 0.3,
       maxOutputTokens: 8192,
