@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import "dotenv/config";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 

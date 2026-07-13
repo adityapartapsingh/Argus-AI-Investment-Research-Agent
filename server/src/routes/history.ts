@@ -63,7 +63,7 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const session = await prisma.researchSession.findUnique({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       include: {
         nodeLogs: {
           orderBy: { createdAt: "asc" },

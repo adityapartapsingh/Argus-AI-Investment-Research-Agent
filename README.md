@@ -5,6 +5,10 @@ Argus is an elite, AI-powered institutional investment research agent. It automa
 
 The dashboard provides a highly visual, premium user experience with real-time streaming node logs, interactive quantitative charts, competitor benchmarking, and an AI-driven qualitative risk assessment.
 
+### Live Demo
+- **Frontend (Vercel):** [https://argus-ai-investment-research-agent.vercel.app](https://argus-ai-investment-research-agent.vercel.app)
+- **Backend API (Render):** [https://argus-ai-investment-research-agent.onrender.com](https://argus-ai-investment-research-agent.onrender.com)
+
 ## How to Run It
 
 ### Prerequisites
@@ -41,6 +45,11 @@ The dashboard provides a highly visual, premium user experience with real-time s
    # Server
    PORT=4000
    NODE_ENV=development
+   ```
+
+   Create a `.env` file in the `client` directory and add your backend URL:
+   ```env
+   VITE_API_URL=http://localhost:4000 # For production, use your deployed Render URL: https://argus-ai-investment-research-agent.onrender.com
    ```
 
 4. **Initialize the Database:**

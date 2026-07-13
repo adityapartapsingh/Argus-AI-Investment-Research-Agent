@@ -35,7 +35,7 @@ function AppDashboard() {
   const { sessions, loading: historyLoading, refetch: refetchHistory } = useSearchHistory();
 
   const handleSubmit = (companyName: string) => {
-    startResearch(companyName, "", "");
+    startResearch(companyName);
     // Refetch history after a delay to pick up the new session
     setTimeout(refetchHistory, 2000);
   };
