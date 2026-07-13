@@ -11,6 +11,9 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 const PORT = parseInt(process.env.PORT || "4000", 10);
 
+// Trust the first proxy (e.g., Render, Vercel) for rate limiting and IP detection
+app.set("trust proxy", 1);
+
 // ── Middleware ──
 
 // CORS: Allow the React dev server and production frontend
