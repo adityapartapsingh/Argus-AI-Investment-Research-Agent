@@ -1,11 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
 
-/**
- * Dual-LLM provider with automatic failover (Gemini -> Gemini).
- * Primary: Google Gemini 3.5 Flash using primary API key
- * Fallback: Google Gemini 3.5 Flash using secondary API key
- */
+
 
 
 let primaryModel: BaseChatModel | null = null;

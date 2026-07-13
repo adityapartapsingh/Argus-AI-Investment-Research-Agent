@@ -1,6 +1,6 @@
 import type { AgentStateType, ExecutionLog, QuantitativeMetrics } from "../state.js";
 import * as yahoo from "../tools/yahooFinance.js";
-import { invokeWithFallback } from "../llm/provider.js";
+import { invokeWithFallback } from "../../llm/provider.js";
 
 /**
  * Node 2: Data Engine
@@ -113,7 +113,7 @@ No markdown formatting, just raw JSON.`;
       metrics.totalCash = llmData.totalCash ?? null;
       metrics.marketCap = llmData.marketCap ?? null;
       metrics.dividendYield = llmData.dividendYield ?? null;
-      
+
       sector = llmData.sector ?? "";
       industry = llmData.industry ?? "";
       companyDescription = llmData.longBusinessSummary ?? "";
