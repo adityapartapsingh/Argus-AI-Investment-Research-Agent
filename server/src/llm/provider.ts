@@ -42,7 +42,7 @@ function getTertiary(): BaseChatModel | null {
   if (!process.env.GEMINI_API_KEY_3) return null;
   if (!tertiaryModel) {
     tertiaryModel = new ChatGoogleGenerativeAI({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       apiKey: process.env.GEMINI_API_KEY_3,
       temperature: 0.3,
       maxOutputTokens: 8192,

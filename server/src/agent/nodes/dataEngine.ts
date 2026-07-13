@@ -1,5 +1,6 @@
 import type { AgentStateType, ExecutionLog, QuantitativeMetrics } from "../state.js";
 import * as yahoo from "../tools/yahooFinance.js";
+import { invokeWithFallback } from "../llm/provider.js";
 
 /**
  * Node 2: Data Engine
@@ -58,6 +59,76 @@ export async function dataEngine(
     priceHistory: yahooPrices,
   };
 
+  let sector = yahooQuote?.sector ?? "";
+  let industry = yahooQuote?.industry ?? "";
+  let companyDescription = yahooQuote?.longBusinessSummary ?? "";
+
+  if (!yahooQuote && !yahooFinancials) {
+    logs.push({
+      node: "dataEngine",
+      status: "running",
+      message: `Yahoo Finance failed. Triggering LLM data fallback...`,
+      timestamp: new Date().toISOString(),
+    });
+
+    try {
+      const prompt = `You are a financial data API fallback. The live data fetch for ${ticker} failed.
+Provide a JSON object with your best historical estimates (as of your last training data) for this company.
+If you don't know a number exactly, provide a reasonable estimate for the industry.
+Return ONLY valid JSON matching this exact structure:
+{
+  "peRatio": 15.5,
+  "pbRatio": 2.1,
+  "debtToEquity": 1.2,
+  "returnOnEquity": 0.15,
+  "revenueGrowthYoY": 0.05,
+  "freeCashFlow": 1000000000,
+  "operatingMargin": 0.12,
+  "epsTrailingTwelveMonths": 3.4,
+  "totalRevenue": 20000000000,
+  "totalDebt": 5000000000,
+  "totalCash": 2000000000,
+  "marketCap": 50000000000,
+  "dividendYield": 0.02,
+  "sector": "Technology",
+  "industry": "Software",
+  "longBusinessSummary": "Brief description of the company..."
+}
+No markdown formatting, just raw JSON.`;
+
+      const response = await invokeWithFallback([{ role: "user", content: prompt }], "dataEngineFallback");
+      const cleanJson = response.content.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
+      const llmData = JSON.parse(cleanJson);
+
+      metrics.peRatio = llmData.peRatio ?? null;
+      metrics.pbRatio = llmData.pbRatio ?? null;
+      metrics.debtToEquity = llmData.debtToEquity ?? null;
+      metrics.returnOnEquity = llmData.returnOnEquity ?? null;
+      metrics.revenueGrowthYoY = llmData.revenueGrowthYoY ?? null;
+      metrics.freeCashFlow = llmData.freeCashFlow ?? null;
+      metrics.operatingMargin = llmData.operatingMargin ?? null;
+      metrics.epsTrailingTwelveMonths = llmData.epsTrailingTwelveMonths ?? null;
+      metrics.totalRevenue = llmData.totalRevenue ?? null;
+      metrics.totalDebt = llmData.totalDebt ?? null;
+      metrics.totalCash = llmData.totalCash ?? null;
+      metrics.marketCap = llmData.marketCap ?? null;
+      metrics.dividendYield = llmData.dividendYield ?? null;
+      
+      sector = llmData.sector ?? "";
+      industry = llmData.industry ?? "";
+      companyDescription = llmData.longBusinessSummary ?? "";
+
+      dataSources.push("Gemini (Fallback Data)");
+    } catch (e) {
+      logs.push({
+        node: "dataEngine",
+        status: "running",
+        message: `LLM fallback also failed: ${(e as Error).message}`,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
   const durationMs = Date.now() - startTime;
 
   logs.push({
@@ -78,9 +149,9 @@ export async function dataEngine(
 
   return {
     quantitativeMetrics: metrics,
-    sector: yahooQuote?.sector ?? "",
-    industry: yahooQuote?.industry ?? "",
-    companyDescription: yahooQuote?.longBusinessSummary ?? "",
+    sector,
+    industry,
+    companyDescription,
     currentNode: "dataEngine",
     executionLogs: logs,
   };
