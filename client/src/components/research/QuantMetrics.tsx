@@ -1,13 +1,11 @@
 import type { QuantitativeMetrics } from "../../types/research";
+import { BarChart2 } from "lucide-react";
 
 interface QuantMetricsProps {
   metrics: QuantitativeMetrics;
   currency: string;
 }
 
-/**
- * Grid of financial KPI cards showing key metrics.
- */
 export default function QuantMetrics({ metrics, currency }: QuantMetricsProps) {
   const cards = [
     {
@@ -15,73 +13,98 @@ export default function QuantMetrics({ metrics, currency }: QuantMetricsProps) {
       value: metrics.peRatio?.toFixed(2) ?? "N/A",
       description: "Price-to-Earnings",
       good: metrics.peRatio != null && metrics.peRatio < 25,
+      benchmark: "Historical: 24.0x",
     },
     {
       label: "P/B Ratio",
       value: metrics.pbRatio?.toFixed(2) ?? "N/A",
       description: "Price-to-Book",
       good: metrics.pbRatio != null && metrics.pbRatio < 3,
+      benchmark: "Sector: 3.5x",
     },
     {
-      label: "Debt/Equity",
+      label: "Debt / Equity",
       value: metrics.debtToEquity?.toFixed(2) ?? "N/A",
       description: "Leverage Ratio",
       good: metrics.debtToEquity != null && metrics.debtToEquity < 1,
+      benchmark: "Prudent: < 1.0x",
     },
     {
       label: "ROE",
       value: metrics.returnOnEquity != null ? `${(metrics.returnOnEquity * 100).toFixed(1)}%` : "N/A",
       description: "Return on Equity",
       good: metrics.returnOnEquity != null && metrics.returnOnEquity > 0.15,
+      benchmark: "Cost of Cap: 12%",
     },
     {
-      label: "Revenue Growth",
+      label: "YoY Growth",
       value: metrics.revenueGrowthYoY != null ? `${metrics.revenueGrowthYoY.toFixed(1)}%` : "N/A",
-      description: "Year-over-Year",
+      description: "Revenue Growth",
       good: metrics.revenueGrowthYoY != null && metrics.revenueGrowthYoY > 5,
+      benchmark: "GDP+: 6.5%",
     },
     {
       label: "Free Cash Flow",
       value: metrics.freeCashFlow != null ? formatNum(metrics.freeCashFlow, currency) : "N/A",
-      description: "Available Cash",
+      description: "Organic Cash",
       good: metrics.freeCashFlow != null && metrics.freeCashFlow > 0,
+      benchmark: "FCF Yield Positive",
     },
     {
       label: "Operating Margin",
       value: metrics.operatingMargin != null ? `${(metrics.operatingMargin * 100).toFixed(1)}%` : "N/A",
-      description: "Profitability",
+      description: "EBIT Conversion",
       good: metrics.operatingMargin != null && metrics.operatingMargin > 0.1,
+      benchmark: "Industry: 15%",
     },
     {
       label: "Market Cap",
       value: metrics.marketCap != null ? formatNum(metrics.marketCap, currency) : "N/A",
-      description: "Total Valuation",
-      good: null, // neutral — size isn't inherently good/bad
+      description: "Equity Value",
+      good: null,
+      benchmark: "Enterprise Scale",
     },
   ];
 
   return (
-    <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5 animate-slide-up">
-      <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-4">
-        📊 Key Financial Metrics
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="bg-white border border-landing-outline rounded p-4 sm:p-6 shadow-sm animate-slide-up">
+      <div className="flex items-center justify-between mb-4 sm:mb-5 border-b border-landing-outline pb-3">
+        <div className="flex items-center gap-2">
+          <BarChart2 className="w-4 h-4 text-landing-secondary" />
+          <h3 className="font-newsreader text-lg sm:text-xl font-semibold text-landing-primary tracking-tight">
+            Fundamental Health Ratios
+          </h3>
+        </div>
+        <span className="text-[9px] sm:text-[10px] font-mono text-landing-tertiary uppercase tracking-wider">
+          Audited Telemetry
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
         {cards.map((card) => (
           <div
             key={card.label}
-            className="bg-surface-base border border-border-subtle rounded-xl p-3 card-hover"
+            className="bg-landing-surface-dim border border-landing-outline rounded p-3 sm:p-3.5 card-hover flex flex-col justify-between"
           >
-            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">
-              {card.label}
-            </p>
-            <p className={`text-lg font-black ${
-              card.good === true ? "text-accent-emerald" :
-              card.good === false ? "text-accent-red" :
-              "text-text-primary"
-            }`}>
-              {card.value}
-            </p>
-            <p className="text-[9px] text-text-muted mt-0.5">{card.description}</p>
+            <div>
+              <p className="text-[9px] sm:text-[10px] font-bold text-landing-tertiary uppercase tracking-wider mb-1 truncate">
+                {card.label}
+              </p>
+              <p
+                className={`text-base sm:text-xl font-bold font-mono tracking-tight truncate ${
+                  card.good === true
+                    ? "text-accent-emerald"
+                    : card.good === false
+                    ? "text-accent-red"
+                    : "text-landing-primary"
+                }`}
+              >
+                {card.value}
+              </p>
+            </div>
+            <div className="mt-2.5 pt-1.5 border-t border-landing-outline/60 flex items-center justify-between text-[9px] sm:text-[10px] text-landing-tertiary">
+              <span className="truncate">{card.description}</span>
+            </div>
           </div>
         ))}
       </div>

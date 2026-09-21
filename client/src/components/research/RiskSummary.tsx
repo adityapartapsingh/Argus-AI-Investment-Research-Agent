@@ -1,81 +1,101 @@
-import { AlertTriangle, Lightbulb } from "lucide-react";
+import { AlertTriangle, Lightbulb, Radio } from "lucide-react";
 import type { QualitativeMetrics } from "../../types/research";
 
 interface RiskSummaryProps {
   metrics: QualitativeMetrics;
 }
 
-/**
- * Qualitative risk summary panel showing:
- *  - Overall sentiment badge
- *  - Key themes
- *  - Risk factors
- *  - Positive catalysts
- */
 export default function RiskSummary({ metrics }: RiskSummaryProps) {
-  const sentimentColor = {
-    BULLISH: "text-accent-emerald bg-accent-emerald/10 border-accent-emerald/20",
-    BEARISH: "text-accent-red bg-accent-red/10 border-accent-red/20",
-    NEUTRAL: "text-accent-amber bg-accent-amber/10 border-accent-amber/20",
+  const sentimentStyles = {
+    BULLISH: "text-accent-emerald bg-accent-emerald/10 border-accent-emerald/30",
+    BEARISH: "text-accent-red bg-accent-red/10 border-accent-red/30",
+    NEUTRAL: "text-amber-700 bg-amber-50 border-amber-200",
   };
 
   return (
     <div className="space-y-4 animate-slide-up">
-      {/* Sentiment Badge */}
-      <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5">
-        <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-3">
-          📡 Market Sentiment
-        </h3>
-        <div className="flex items-center gap-3 mb-3">
-          <span className={`badge text-sm px-4 py-1 border ${sentimentColor[metrics.sentiment]}`}>
+      {/* 1. Market Sentiment Card */}
+      <div className="bg-white border border-landing-outline rounded p-4 sm:p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-3 border-b border-landing-outline pb-3">
+          <Radio className="w-4 h-4 text-landing-secondary" />
+          <h3 className="font-newsreader text-lg sm:text-xl font-semibold text-landing-primary tracking-tight">
+            Market Sentiment
+          </h3>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 mb-3">
+          <span
+            className={`badge text-xs px-3 py-1 font-bold border ${
+              sentimentStyles[metrics.sentiment]
+            }`}
+          >
             {metrics.sentiment}
           </span>
-          <span className="text-xs text-text-muted font-mono">
-            Score: {metrics.sentimentScore}/100 • Confidence: {(metrics.sentimentConfidence * 100).toFixed(0)}%
+          <span className="text-xs text-landing-tertiary font-mono">
+            Score: <strong className="text-landing-primary">{metrics.sentimentScore}/100</strong> • {(metrics.sentimentConfidence * 100).toFixed(0)}% Conf.
           </span>
         </div>
-        {/* Themes */}
+
+        {/* Thematic Tags */}
         {metrics.themes.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {metrics.themes.map((theme, i) => (
-              <span key={i} className="text-[10px] font-semibold text-text-secondary bg-surface-base border border-border-subtle rounded-lg px-2.5 py-1">
-                {theme}
-              </span>
-            ))}
+          <div>
+            <p className="text-[10px] font-bold text-landing-tertiary uppercase tracking-wider mb-1.5">
+              Strategic Themes
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {metrics.themes.map((theme, i) => (
+                <span
+                  key={i}
+                  className="text-[10px] sm:text-[11px] font-medium text-landing-primary bg-landing-surface-dim border border-landing-outline rounded px-2.5 py-1"
+                >
+                  {theme}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      {/* Risk Factors */}
-      {metrics.riskFactors.length > 0 && (
-        <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-3.5 h-3.5 text-accent-amber" />
-            <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">Risk Factors</h3>
+      {/* 2. Positive Catalysts */}
+      {metrics.catalysts.length > 0 && (
+        <div className="bg-white border border-landing-outline rounded p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 border-b border-landing-outline pb-3">
+            <Lightbulb className="w-4 h-4 text-accent-emerald" />
+            <h3 className="font-newsreader text-lg sm:text-xl font-semibold text-landing-primary tracking-tight">
+              Growth Catalysts
+            </h3>
           </div>
           <ul className="space-y-2">
-            {metrics.riskFactors.map((risk, i) => (
-              <li key={i} className="text-xs text-text-secondary bg-surface-base border border-border-subtle rounded-xl p-3 leading-relaxed">
-                <span className="text-accent-amber mr-1.5">⚠</span>
-                {risk}
+            {metrics.catalysts.map((catalyst, i) => (
+              <li
+                key={i}
+                className="text-xs text-landing-text-secondary bg-landing-surface-dim/60 border border-landing-outline rounded p-2.5 sm:p-3 leading-relaxed flex items-start gap-2"
+              >
+                <span className="text-accent-emerald font-bold text-sm leading-none mt-0.5">✦</span>
+                <span>{catalyst}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {/* Catalysts */}
-      {metrics.catalysts.length > 0 && (
-        <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Lightbulb className="w-3.5 h-3.5 text-accent-emerald" />
-            <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">Positive Catalysts</h3>
+      {/* 3. Downside Risk Factors */}
+      {metrics.riskFactors.length > 0 && (
+        <div className="bg-white border border-landing-outline rounded p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 border-b border-landing-outline pb-3">
+            <AlertTriangle className="w-4 h-4 text-amber-500" />
+            <h3 className="font-newsreader text-lg sm:text-xl font-semibold text-landing-primary tracking-tight">
+              Risk Vulnerabilities
+            </h3>
           </div>
           <ul className="space-y-2">
-            {metrics.catalysts.map((catalyst, i) => (
-              <li key={i} className="text-xs text-text-secondary bg-surface-base border border-border-subtle rounded-xl p-3 leading-relaxed">
-                <span className="text-accent-emerald mr-1.5">✦</span>
-                {catalyst}
+            {metrics.riskFactors.map((risk, i) => (
+              <li
+                key={i}
+                className="text-xs text-landing-text-secondary bg-amber-50/40 border border-amber-200/60 rounded p-2.5 sm:p-3 leading-relaxed flex items-start gap-2"
+              >
+                <span className="text-amber-600 font-bold text-sm leading-none mt-0.5">⚠</span>
+                <span>{risk}</span>
               </li>
             ))}
           </ul>

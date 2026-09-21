@@ -23,44 +23,47 @@ const barData = [
   { name: 'Finance', value: 35 },
   { name: 'IT', value: 25 },
   { name: 'Energy', value: 15 },
-  { name: 'Healthcare', value: 10 },
-  { name: 'Consumer', value: 15 },
+  { name: 'Health', value: 10 },
+  { name: 'Cons.', value: 15 },
 ];
 
 export default function InteractiveCharts() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   return (
-    <section className="px-5 md:px-16 py-24 bg-white border-y border-landing-outline/50">
+    <section className="px-4 sm:px-8 md:px-16 py-14 sm:py-24 bg-white border-y border-landing-outline/50">
       <div className="max-w-6xl mx-auto">
-        <h2 className="font-newsreader text-3xl md:text-4xl text-landing-primary font-medium mb-12 border-b border-landing-outline pb-4">
+        <h2 className="font-newsreader text-2xl sm:text-3xl md:text-4xl text-landing-primary font-medium mb-8 sm:mb-12 border-b border-landing-outline pb-3 sm:pb-4">
           Visual Analytics
         </h2>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
           
           {/* Nifty 50 Performance Chart */}
-          <div className="bg-landing-surface-dim border border-landing-outline rounded p-6 shadow-sm">
-            <h3 className="font-newsreader text-xl text-landing-primary font-medium mb-6">Nifty 50 Performance (YTD)</h3>
-            <div className="h-72 w-full">
+          <div className="bg-landing-surface-dim border border-landing-outline rounded p-4 sm:p-6 shadow-sm">
+            <h3 className="font-newsreader text-lg sm:text-xl text-landing-primary font-medium mb-4 sm:mb-6">
+              Nifty 50 Performance (YTD)
+            </h3>
+            <div className="h-60 sm:h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <LineChart data={lineData} margin={{ top: 5, right: 10, bottom: 5, left: -10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                   <XAxis 
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#475569', fontSize: 12, fontFamily: 'Inter' }} 
-                    dy={10}
+                    tick={{ fill: '#475569', fontSize: 11, fontFamily: 'Inter' }} 
+                    dy={8}
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#475569', fontSize: 12, fontFamily: 'Inter' }} 
+                    tick={{ fill: '#475569', fontSize: 11, fontFamily: 'Inter' }} 
                     domain={['dataMin - 1000', 'dataMax + 1000']}
+                    tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '4px', color: '#fff' }}
+                    contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '12px' }}
                     itemStyle={{ color: '#d4af37' }}
                     labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                   />
@@ -70,7 +73,7 @@ export default function InteractiveCharts() {
                     stroke="#0f172a" 
                     strokeWidth={2} 
                     dot={false}
-                    activeDot={{ r: 6, fill: '#d4af37', stroke: '#fff', strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: '#d4af37', stroke: '#fff', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -78,11 +81,13 @@ export default function InteractiveCharts() {
           </div>
 
           {/* Sector Allocation Chart */}
-          <div className="bg-landing-surface-dim border border-landing-outline rounded p-6 shadow-sm">
-            <h3 className="font-newsreader text-xl text-landing-primary font-medium mb-6">Institutional Sector Allocation</h3>
-            <div className="h-72 w-full">
+          <div className="bg-landing-surface-dim border border-landing-outline rounded p-4 sm:p-6 shadow-sm">
+            <h3 className="font-newsreader text-lg sm:text-xl text-landing-primary font-medium mb-4 sm:mb-6">
+              Institutional Sector Allocation
+            </h3>
+            <div className="h-60 sm:h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+                <BarChart data={barData} margin={{ top: 5, right: 10, bottom: 5, left: -15 }}
                   onMouseMove={(state: any) => {
                     if (state.activeTooltipIndex !== undefined) {
                       setActiveIndex(state.activeTooltipIndex);
@@ -95,18 +100,18 @@ export default function InteractiveCharts() {
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#475569', fontSize: 12, fontFamily: 'Inter' }} 
-                    dy={10}
+                    tick={{ fill: '#475569', fontSize: 11, fontFamily: 'Inter' }} 
+                    dy={8}
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#475569', fontSize: 12, fontFamily: 'Inter' }} 
+                    tick={{ fill: '#475569', fontSize: 11, fontFamily: 'Inter' }} 
                     tickFormatter={(val) => `${val}%`}
                   />
                   <Tooltip 
                     cursor={{ fill: 'transparent' }}
-                    contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '4px', color: '#fff' }}
+                    contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '12px' }}
                     itemStyle={{ color: '#d4af37' }}
                     formatter={(value) => [`${value}%`, 'Allocation']}
                   />

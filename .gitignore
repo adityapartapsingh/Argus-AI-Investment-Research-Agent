@@ -3,3 +3,11 @@ dist/
 .env
 *.log
 .DS_Store
+
+# Agent State & Task Tracking
+memory.md
+task.md
+interview.md
+docs/memory.md
+docs/task.md
+docs/interview.md

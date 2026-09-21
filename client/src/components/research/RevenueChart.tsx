@@ -1,20 +1,26 @@
+import { useState } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  Area, AreaChart,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Area,
+  AreaChart,
 } from "recharts";
 import type { QuantitativeMetrics } from "../../types/research";
+import { LineChart as LineChartIcon, BarChart3, TrendingUp } from "lucide-react";
 
 interface RevenueChartProps {
   metrics: QuantitativeMetrics;
   currency: string;
 }
 
-/**
- * Financial charts section:
- *  1. Revenue + Net Income bar chart (historical)
- *  2. Stock price trend line chart (1 year)
- */
 export default function RevenueChart({ metrics, currency }: RevenueChartProps) {
+  const [activeTab, setActiveTab] = useState<"FINANCIALS" | "PRICE">("FINANCIALS");
   const symbol = currency === "INR" ? "₹" : currency === "GBP" ? "£" : "$";
 
   const formatValue = (value: number) => {
@@ -25,57 +31,110 @@ export default function RevenueChart({ metrics, currency }: RevenueChartProps) {
     return `${symbol}${value}`;
   };
 
+  const hasFinancials = metrics.revenueHistory && metrics.revenueHistory.length > 0;
+  const hasPrice = metrics.priceHistory && metrics.priceHistory.length > 0;
+
   return (
-    <div className="space-y-4 animate-slide-up">
-      {/* Revenue & Net Income Bar Chart */}
-      {metrics.revenueHistory.length > 0 && (
-        <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5">
-          <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-4">
-            📈 Revenue & Net Income History
+    <div className="bg-white border border-landing-outline rounded p-4 sm:p-6 shadow-sm animate-slide-up">
+      {/* Chart Section Header with View Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6 border-b border-landing-outline pb-3 sm:pb-4">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-landing-secondary" />
+          <h3 className="font-newsreader text-lg sm:text-xl font-semibold text-landing-primary tracking-tight">
+            Visual Financial Analytics
           </h3>
-          <div className="h-64">
+        </div>
+
+        {/* Tab Controls (Full Width on Mobile) */}
+        <div className="flex items-center gap-1 bg-landing-surface-dim p-1 rounded border border-landing-outline text-xs w-full sm:w-auto">
+          {hasFinancials && (
+            <button
+              onClick={() => setActiveTab("FINANCIALS")}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "FINANCIALS"
+                  ? "bg-landing-primary text-white shadow-xs"
+                  : "text-landing-tertiary hover:text-landing-primary"
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              Annual Ratios
+            </button>
+          )}
+
+          {hasPrice && (
+            <button
+              onClick={() => setActiveTab("PRICE")}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === "PRICE"
+                  ? "bg-landing-primary text-white shadow-xs"
+                  : "text-landing-tertiary hover:text-landing-primary"
+              }`}
+            >
+              <LineChartIcon className="w-3.5 h-3.5" />
+              1Y Price Trend
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Chart 1: Revenue & Net Income Bar Chart */}
+      {activeTab === "FINANCIALS" && hasFinancials && (
+        <div>
+          <div className="flex items-center justify-between text-[11px] sm:text-xs text-landing-tertiary mb-3 font-mono">
+            <span>Historical Gross Revenue vs. Net Income</span>
+            <span className="text-landing-secondary font-semibold hidden xs:inline">Audited Filings</span>
+          </div>
+
+          <div className="h-56 sm:h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={metrics.revenueHistory}
-                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E2736" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis
                   dataKey="year"
-                  stroke="#5A6B82"
+                  stroke="#475569"
                   fontSize={11}
-                  fontFamily="JetBrains Mono"
+                  fontFamily="Inter"
+                  tickLine={false}
+                  axisLine={false}
+                  dy={6}
                 />
                 <YAxis
-                  stroke="#5A6B82"
+                  stroke="#475569"
                   fontSize={10}
                   fontFamily="JetBrains Mono"
                   tickFormatter={formatValue}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#151B26",
-                    border: "1px solid #2A3545",
-                    borderRadius: "12px",
+                    backgroundColor: "#0f172a",
+                    border: "none",
+                    borderRadius: "6px",
+                    color: "#ffffff",
                     fontSize: "12px",
-                    fontFamily: "Inter",
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
                   }}
+                  itemStyle={{ color: "#d4af37" }}
                   formatter={(value: any) => [formatValue(Number(value)), ""]}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: "11px", fontFamily: "Inter" }}
+                  wrapperStyle={{ fontSize: "11px", fontFamily: "Inter", paddingTop: "8px" }}
                 />
                 <Bar
                   dataKey="revenue"
-                  fill="#3B82F6"
-                  name="Revenue"
-                  radius={[4, 4, 0, 0]}
+                  fill="#0f172a"
+                  name="Gross Revenue"
+                  radius={[3, 3, 0, 0]}
                 />
                 <Bar
                   dataKey="netIncome"
-                  fill="#10B981"
+                  fill="#d4af37"
                   name="Net Income"
-                  radius={[4, 4, 0, 0]}
+                  radius={[3, 3, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -83,59 +142,76 @@ export default function RevenueChart({ metrics, currency }: RevenueChartProps) {
         </div>
       )}
 
-      {/* Stock Price Trend */}
-      {metrics.priceHistory.length > 0 && (
-        <div className="bg-surface-raised border border-border-subtle rounded-2xl p-5">
-          <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-4">
-            📉 Price Trend (1 Year)
-          </h3>
-          <div className="h-52">
+      {/* Chart 2: 1-Year Stock Price Trend Area Chart */}
+      {activeTab === "PRICE" && hasPrice && (
+        <div>
+          <div className="flex items-center justify-between text-[11px] sm:text-xs text-landing-tertiary mb-3 font-mono">
+            <span>Daily Closing Prices (Past 252 Days)</span>
+            <span className="text-accent-emerald font-semibold hidden xs:inline">1Y Trajectory</span>
+          </div>
+
+          <div className="h-56 sm:h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={metrics.priceHistory}
-                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
               >
                 <defs>
                   <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#0f172a" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#d4af37" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E2736" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  stroke="#5A6B82"
-                  fontSize={9}
+                  stroke="#475569"
+                  fontSize={10}
                   fontFamily="JetBrains Mono"
-                  tickFormatter={(val) => val.slice(5)} // Show MM-DD
+                  tickFormatter={(val) => val.slice(5)}
+                  tickLine={false}
+                  axisLine={false}
                   interval="preserveStartEnd"
+                  dy={6}
                 />
                 <YAxis
-                  stroke="#5A6B82"
+                  stroke="#475569"
                   fontSize={10}
                   fontFamily="JetBrains Mono"
                   tickFormatter={(val) => `${symbol}${val}`}
                   domain={["auto", "auto"]}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#151B26",
-                    border: "1px solid #2A3545",
-                    borderRadius: "12px",
+                    backgroundColor: "#0f172a",
+                    border: "none",
+                    borderRadius: "6px",
+                    color: "#ffffff",
                     fontSize: "12px",
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
                   }}
-                  formatter={(value: any) => [`${symbol}${Number(value).toFixed(2)}`, "Price"]}
+                  itemStyle={{ color: "#d4af37" }}
+                  formatter={(value: any) => [`${symbol}${Number(value).toFixed(2)}`, "Close"]}
                 />
                 <Area
                   type="monotone"
                   dataKey="close"
-                  stroke="#8B5CF6"
+                  stroke="#0f172a"
                   strokeWidth={2}
                   fill="url(#priceGradient)"
+                  activeDot={{ r: 4, fill: "#d4af37", stroke: "#0f172a", strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      )}
+
+      {!hasFinancials && !hasPrice && (
+        <div className="py-10 text-center text-xs text-landing-tertiary">
+          Historical chart telemetry not available for this ticker.
         </div>
       )}
     </div>

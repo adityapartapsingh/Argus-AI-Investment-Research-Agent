@@ -4,9 +4,12 @@ services:
     env: node
     buildCommand: npm run build
     startCommand: npm run start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PING_INTERVAL_MINUTES
+        value: "10"
       - key: GOOGLE_API_KEY
         sync: false
       - key: GEMINI_API_KEY_2

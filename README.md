@@ -8,6 +8,13 @@ The dashboard provides a highly visual, premium user experience with real-time s
 ### Live Demo
 - **Frontend (Vercel):** [https://argus-ai-investment-research-agent.vercel.app](https://argus-ai-investment-research-agent.vercel.app)
 - **Backend API (Render):** [https://argus-ai-investment-research-agent.onrender.com](https://argus-ai-investment-research-agent.onrender.com)
+- **Health Check (24/7 Keep-Alive):** [https://argus-ai-investment-research-agent.onrender.com/api/health](https://argus-ai-investment-research-agent.onrender.com/api/health)
+
+### Documentation & Deep Dive
+- 🎓 **[Master Technical & Behavioral Interview Guide](docs/interview.md)**: Line-by-line code explanations, system design tradeoffs, DSA concepts, failure modes, and HR behavioral questions.
+- 📋 **[Product Requirements Document (PRD)](docs/prd.md)**: Problem statement, target users, and core feature specifications.
+- 🏛️ **[System Architecture](docs/architecture.md)**: Decoupled topology, LangGraph state machine, and data flow.
+- 🎨 **[Design System & UI/UX](docs/design.md)**: Modern institutional editorial tokens, typography, and responsive component specs.
 
 ## How to Run It
 
